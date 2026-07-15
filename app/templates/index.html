@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }}</title>
+  <meta name="description" content="AI-powered personal fitness coach powered by IBM watsonx.ai Granite" />
+
+  <!-- Bootstrap 5 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>" />
+</head>
+
+<body>
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid main-container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+      <span class="emoji">🏋️</span> {{ app_name }}
+    </a>
+
+    <!-- Desktop nav -->
+    <ul class="navbar-nav d-none d-md-flex flex-row gap-1 me-auto ms-4">
+      <li class="nav-item"><a class="nav-link active" data-page="dashboard" href="#">📊 Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" data-page="chat" href="#">💬 AI Chat</a></li>
+      <li class="nav-item"><a class="nav-link" data-page="workout" href="#">💪 Workout</a></li>
+      <li class="nav-item"><a class="nav-link" data-page="nutrition" href="#">🥗 Nutrition</a></li>
+      <li class="nav-item"><a class="nav-link" data-page="habits" href="#">📅 Habits</a></li>
+      <li class="nav-item"><a class="nav-link" data-page="profile" href="#">👤 Profile</a></li>
+    </ul>
+
+    <!-- Right side controls -->
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+      <a
+        href="/docs"
+        target="_blank"
+        class="btn-icon d-none d-md-flex"
+        title="API Docs"
+        style="text-decoration:none;"
+      >📖</a>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button class="btn-icon ms-2 d-md-none" data-bs-toggle="collapse" data-bs-target="#mobileMenu">☰</button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="collapse" id="mobileMenu">
+    <div class="main-container py-2 d-flex flex-wrap gap-2">
+      <a class="nav-link active" data-page="dashboard" href="#">📊 Dashboard</a>
+      <a class="nav-link" data-page="chat" href="#">💬 Chat</a>
+      <a class="nav-link" data-page="workout" href="#">💪 Workout</a>
+      <a class="nav-link" data-page="nutrition" href="#">🥗 Nutrition</a>
+      <a class="nav-link" data-page="habits" href="#">📅 Habits</a>
+      <a class="nav-link" data-page="profile" href="#">👤 Profile</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="main-container py-4" id="mainContent">
+
+  <!-- ============================================================
+       PAGE: DASHBOARD
+       ============================================================ -->
+  <section class="page-section active" id="page-dashboard">
+    <!-- Hero greeting -->
+    <div class="mb-4">
+      <h1 class="hero-greeting">
+        Good day, <span class="gradient-text" id="greetName">Athlete</span>! 💪
+      </h1>
+      <p class="hero-sub">Track your progress, stay consistent, and crush your goals.</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="glass-card stat-card">
+          <div class="stat-icon icon-blue">🔥</div>
+          <div class="stat-value" id="statStreak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="glass-card stat-card">
+          <div class="stat-icon icon-green">🏋️</div>
+          <div class="stat-value" id="statWorkouts">0</div>
+          <div class="stat-label">Workouts Done</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="glass-card stat-card">
+          <div class="stat-icon icon-purple">⚖️</div>
+          <div class="stat-value" id="statBMI">--</div>
+          <div class="stat-label" id="statBMILabel">BMI</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="glass-card stat-card">
+          <div class="stat-icon icon-orange">🎯</div>
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Potential</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <!-- Weekly Activity Chart -->
+      <div class="col-12 col-lg-7">
+        <div class="glass-card p-3 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 fw-600">📈 Weekly Activity</h6>
+            <div class="d-flex gap-3 fs-sm text-muted">
+              <span>🟢 Workout</span>
+              <span>🔵 Steps</span>
+              <span>🟣 Goal</span>
+            </div>
+          </div>
+          <svg id="weeklySVG" width="100%" height="100" viewBox="0 0 400 100"></svg>
+          <div class="d-flex justify-content-between mt-2">
+            <div class="text-center">
+              <div class="fs-sm fw-600" id="weeklyWorkouts">0</div>
+              <div class="fs-sm text-muted">Workouts</div>
+            </div>
+            <div class="text-center">
+              <div class="fs-sm fw-600" id="weeklySteps">0</div>
+              <div class="fs-sm text-muted">Avg Steps</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BMI Card -->
+      <div class="col-12 col-lg-5">
+        <div class="glass-card p-3 h-100">
+          <h6 class="fw-600 mb-3">⚖️ BMI Overview</h6>
+          <div class="bmi-meter">
+            <div class="bmi-indicator" id="bmiIndicator" style="left: 30%"></div>
+          </div>
+          <div class="d-flex justify-content-between fs-sm text-muted mt-2 mb-3">
+            <span>Underweight</span>
+            <span>Normal</span>
+            <span>Overweight</span>
+            <span>Obese</span>
+          </div>
+          <div class="d-flex gap-2 mb-3">
+            <!-- Progress rings -->
+            <div class="progress-ring">
+              <svg><circle class="progress-ring-bg" cx="50" cy="50" r="40"/><circle class="progress-ring-fill" id="ringBMI" cx="50" cy="50" r="40" stroke-dasharray="251" stroke-dashoffset="200"/></svg>
+              <div class="progress-ring-text">BMI</div>
+            </div>
+            <div class="progress-ring">
+              <svg><circle class="progress-ring-bg" cx="50" cy="50" r="40"/><circle class="progress-ring-fill" id="ringStreak" cx="50" cy="50" r="40" stroke-dasharray="251" stroke-dashoffset="251"/></svg>
+              <div class="progress-ring-text">🔥</div>
+            </div>
+            <div class="progress-ring">
+              <svg><circle class="progress-ring-bg" cx="50" cy="50" r="40"/><circle class="progress-ring-fill" id="ringWorkouts" cx="50" cy="50" r="40" stroke-dasharray="251" stroke-dashoffset="251"/></svg>
+              <div class="progress-ring-text">💪</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Motivational Quote -->
+      <div class="col-12">
+        <div class="glass-card p-3">
+          <div class="quote-card">
+            <div id="dashQuote">Loading your daily motivation...</div>
+            <div class="quote-author" id="dashQuoteAuthor">— Fitness Buddy</div>
+          </div>
+          <button
+            class="btn-gradient mt-3 btn"
+            style="font-size:0.85rem;padding:0.45rem 1.25rem"
+            onclick="Router.navigate('chat')"
+          >
+            💬 Talk to AI Coach
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: AI CHAT
+       ============================================================ -->
+  <section class="page-section" id="page-chat">
+    <div class="row g-3 h-100">
+      <!-- Chat Main -->
+      <div class="col-12 col-lg-8">
+        <div class="glass-card chat-container p-0">
+          <!-- Chat header -->
+          <div class="p-3 d-flex align-items-center gap-3" style="border-bottom:1px solid var(--border-glass)">
+            <div class="message-avatar avatar-ai">🏋️</div>
+            <div>
+              <div class="fw-600">Fitness Buddy AI</div>
+              <div class="fs-sm text-muted">Powered by IBM Watsonx.ai · Granite 3.3</div>
+            </div>
+            <div class="ms-auto">
+              <span class="pill pill-green">● Online</span>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div class="chat-messages" id="chatMessages">
+            <!-- Messages rendered by JS -->
+          </div>
+
+          <!-- Typing indicator -->
+          <div class="typing-indicator" id="typingIndicator" style="display:none; padding:0.5rem 1.5rem;">
+            <div class="message-avatar avatar-ai">🏋️</div>
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <!-- Quick prompts -->
+          <div class="quick-prompts">
+            <span class="quick-chip">Give me a 7-day workout plan</span>
+            <span class="quick-chip">Best exercises for weight loss</span>
+            <span class="quick-chip">Healthy Indian breakfast ideas</span>
+            <span class="quick-chip">How to stay motivated?</span>
+            <span class="quick-chip">Yoga for beginners</span>
+            <span class="quick-chip">Post-workout nutrition tips</span>
+          </div>
+
+          <!-- Input area -->
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <textarea
+                id="chatInput"
+                placeholder="Ask your fitness coach anything... (Shift+Enter for new line)"
+                rows="1"
+              ></textarea>
+              <button class="btn-send" id="sendBtn" title="Send message">
+                ➤
+              </button>
+            </div>
+            <div class="text-center mt-1" style="font-size:0.7rem;color:var(--text-muted)">
+              AI responses are for wellness purposes only. Always consult a healthcare professional.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat sidebar -->
+      <div class="col-12 col-lg-4">
+        <div class="sidebar d-flex flex-column gap-3">
+          <!-- AI Capabilities -->
+          <div class="glass-card p-3">
+            <h6 class="fw-600 mb-3">🤖 What I can help with</h6>
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>💪</span><span>Personalised workout plans</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>🥗</span><span>Nutrition & meal planning</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>🧘</span><span>Yoga & flexibility routines</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>🔥</span><span>HIIT & cardio programmes</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>🎯</span><span>Goal setting & motivation</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>💤</span><span>Recovery & sleep tips</span>
+              </div>
+              <div class="d-flex gap-2 align-items-start fs-sm">
+                <span>🇮🇳</span><span>Indian & international exercises</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conversation tips -->
+          <div class="glass-card p-3">
+            <h6 class="fw-600 mb-3">💡 Pro Tips</h6>
+            <ul class="ps-3 mb-0 fs-sm" style="color:var(--text-secondary)">
+              <li class="mb-2">Complete your <strong>profile</strong> first for personalised advice</li>
+              <li class="mb-2">Ask for <strong>week-by-week</strong> plans for best results</li>
+              <li class="mb-2">Mention any <strong>injuries or limitations</strong></li>
+              <li class="mb-2">Ask about <strong>Surya Namaskar</strong> for a complete workout</li>
+              <li>Request a <strong>beginner's 30-day challenge</strong></li>
+            </ul>
+          </div>
+
+          <!-- Model info -->
+          <div class="glass-card p-3">
+            <h6 class="fw-600 mb-2">⚡ Model Info</h6>
+            <div class="fs-sm text-muted">
+              <div class="d-flex justify-content-between mb-1">
+                <span>Model</span>
+                <span class="pill pill-blue">Granite 3.3</span>
+              </div>
+              <div class="d-flex justify-content-between mb-1">
+                <span>Provider</span>
+                <span>IBM Watsonx.ai</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Max tokens</span>
+                <span>1024</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: WORKOUT
+       ============================================================ -->
+  <section class="page-section" id="page-workout">
+    <div class="mb-4">
+      <h2 class="section-heading">💪 Workout Planner</h2>
+      <p class="section-subheading">AI-generated personalised workout plans for any fitness level</p>
+    </div>
+
+    <div class="row g-3">
+      <!-- Controls -->
+      <div class="col-12 col-lg-4">
+        <div class="glass-card p-3">
+          <h6 class="fw-600 mb-3">⚙️ Customise Your Plan</h6>
+          <div class="mb-3">
+            <label class="form-label">Workout Type</label>
+            <select class="form-select" id="wk_type">
+              <option value="home">🏠 Home Workout</option>
+              <option value="strength">🏋️ Strength Training</option>
+              <option value="cardio">🏃 Cardio</option>
+              <option value="hiit">⚡ HIIT</option>
+              <option value="yoga">🧘 Yoga</option>
+              <option value="flexibility">🤸 Flexibility</option>
+              <option value="calisthenics">💪 Calisthenics</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Duration (minutes)</label>
+            <select class="form-select" id="wk_duration">
+              <option value="15">15 min</option>
+              <option value="20">20 min</option>
+              <option value="30" selected>30 min</option>
+              <option value="45">45 min</option>
+              <option value="60">60 min</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Fitness Level</label>
+            <select class="form-select" id="wk_level">
+              <option value="beginner">🌱 Beginner</option>
+              <option value="intermediate">🔥 Intermediate</option>
+              <option value="advanced">⚡ Advanced</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Primary Goal</label>
+            <select class="form-select" id="wk_goal">
+              <option value="general_fitness">🎯 General Fitness</option>
+              <option value="weight_loss">⚖️ Weight Loss</option>
+              <option value="muscle_gain">💪 Muscle Gain</option>
+              <option value="endurance">🏃 Endurance</option>
+              <option value="flexibility">🤸 Flexibility</option>
+              <option value="stress_relief">🧘 Stress Relief</option>
+            </select>
+          </div>
+          <button class="btn-gradient w-100" id="generateWorkoutBtn">
+            🚀 Generate Plan
+          </button>
+        </div>
+
+        <!-- Tips panel -->
+        <div class="glass-card p-3 mt-3">
+          <h6 class="fw-600 mb-2">💡 Workout Tips</h6>
+          <ul class="ps-3 mb-0 fs-sm" style="color:var(--text-secondary)" id="workoutTips">
+            <li>Generate a plan to see personalised tips</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Plan output -->
+      <div class="col-12 col-lg-8">
+        <!-- AI Overview -->
+        <div class="glass-card p-3 mb-3" id="workoutOverview">
+          <div class="d-flex align-items-center gap-2 text-muted">
+            <div class="spinner-ring" style="width:20px;height:20px;border-width:2px"></div>
+            <span class="fs-sm">Click "Generate Plan" to create your personalised workout plan</span>
+          </div>
+        </div>
+
+        <!-- Plan cards -->
+        <div id="workoutPlanContainer">
+          <!-- Workout day cards rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: NUTRITION
+       ============================================================ -->
+  <section class="page-section" id="page-nutrition">
+    <div class="mb-4">
+      <h2 class="section-heading">🥗 Nutrition Planner</h2>
+      <p class="section-subheading">Personalised macros, meal plans, and dietary guidance</p>
+    </div>
+
+    <div class="row g-3">
+      <!-- Controls -->
+      <div class="col-12 col-lg-4">
+        <div class="glass-card p-3">
+          <h6 class="fw-600 mb-3">⚙️ Your Parameters</h6>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Weight (kg)</label>
+              <input type="number" class="form-control" id="nt_weight" value="70" min="30" max="250" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" class="form-control" id="nt_height" value="170" min="100" max="250" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-control" id="nt_age" value="25" min="10" max="100" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Gender</label>
+              <select class="form-select" id="nt_gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-2 mt-2">
+            <label class="form-label">Activity Level</label>
+            <select class="form-select" id="nt_activity">
+              <option value="sedentary">🛋️ Sedentary</option>
+              <option value="light">🚶 Light</option>
+              <option value="moderate" selected>🏃 Moderate</option>
+              <option value="active">⚡ Active</option>
+              <option value="very_active">🔥 Very Active</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Goal</label>
+            <select class="form-select" id="nt_goal">
+              <option value="general_fitness">🎯 General Fitness</option>
+              <option value="weight_loss">⚖️ Weight Loss</option>
+              <option value="muscle_gain">💪 Muscle Gain</option>
+              <option value="endurance">🏃 Endurance</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Diet Preference</label>
+            <select class="form-select" id="nt_diet">
+              <option value="vegetarian">🌱 Vegetarian</option>
+              <option value="vegan">🌿 Vegan</option>
+              <option value="non_vegetarian">🍗 Non-Vegetarian</option>
+              <option value="eggetarian">🥚 Eggetarian</option>
+            </select>
+          </div>
+          <button class="btn-gradient w-100" id="generateNutritionBtn">
+            🥗 Calculate Nutrition
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="col-12 col-lg-8">
+        <div class="row g-3 mb-3">
+          <!-- Calorie target -->
+          <div class="col-12 col-md-6">
+            <div class="glass-card p-3 text-center">
+              <div class="stat-icon icon-orange mx-auto mb-2">🔥</div>
+              <div class="stat-value" id="ntCalories">--</div>
+              <div class="stat-label">Daily Calories (kcal)</div>
+            </div>
+          </div>
+          <!-- Hydration -->
+          <div class="col-12 col-md-6">
+            <div class="glass-card p-3 text-center">
+              <div class="stat-icon icon-blue mx-auto mb-2">💧</div>
+              <div class="stat-value" id="ntWater">--</div>
+              <div class="stat-label">Daily Water</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Macro breakdown -->
+        <div class="glass-card p-3 mb-3">
+          <h6 class="fw-600 mb-3">📊 Macro Breakdown</h6>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fs-sm fw-600">🔵 Protein</span>
+              <span class="fs-sm" id="ntProtein">--</span>
+            </div>
+            <div class="macro-bar"><div class="macro-fill macro-protein" id="macroProteinBar" style="width:0%"></div></div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fs-sm fw-600">🟠 Carbohydrates</span>
+              <span class="fs-sm" id="ntCarbs">--</span>
+            </div>
+            <div class="macro-bar"><div class="macro-fill macro-carbs" id="macroCarbsBar" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fs-sm fw-600">🩷 Healthy Fats</span>
+              <span class="fs-sm" id="ntFat">--</span>
+            </div>
+            <div class="macro-bar"><div class="macro-fill macro-fat" id="macroFatBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Tabs: Meal Plan / Tips -->
+        <div class="glass-card p-3">
+          <div class="tab-buttons mb-3">
+            <button class="tab-btn active" data-group="nt" data-target="nt-meals">🍽️ Meal Plan</button>
+            <button class="tab-btn" data-group="nt" data-target="nt-tips">💡 Tips</button>
+          </div>
+          <div class="tab-content active" id="nt-meals" data-group="nt">
+            <div id="mealPlanContainer">
+              <p class="text-muted fs-sm">Generate your nutrition plan to see meal suggestions.</p>
+            </div>
+          </div>
+          <div class="tab-content" id="nt-tips" data-group="nt">
+            <ul class="ps-3 mb-2 fs-sm" id="nutritionTips">
+              <li>Generate your plan first</li>
+            </ul>
+          </div>
+          <hr class="divider" />
+          <div class="fs-sm text-muted" id="nutritionDisclaimer">
+            ⚠️ Nutritional information is for general wellness guidance only.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: HABITS
+       ============================================================ -->
+  <section class="page-section" id="page-habits">
+    <div class="mb-4">
+      <h2 class="section-heading">📅 Daily Habit Tracker</h2>
+      <p class="section-subheading">Build powerful daily habits — consistency is the key to transformation</p>
+    </div>
+
+    <div class="row g-3">
+      <!-- Today's log -->
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="glass-card p-4">
+          <h6 class="fw-600 mb-3">📝 Log Today's Habits</h6>
+          <div id="todayDate" class="pill pill-blue mb-3 fs-sm">
+            <!-- Date filled by JS -->
+          </div>
+
+          <!-- Water intake -->
+          <div class="mb-3">
+            <label class="form-label">💧 Water Glasses (8 oz each)</label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range flex-grow-1" id="hb_water" min="0" max="15" value="0" />
+              <span class="fw-600" id="waterVal">0</span>
+            </div>
+          </div>
+
+          <!-- Sleep -->
+          <div class="mb-3">
+            <label class="form-label">😴 Sleep Hours</label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range flex-grow-1" id="hb_sleep" min="0" max="12" step="0.5" value="0" />
+              <span class="fw-600" id="sleepVal">0h</span>
+            </div>
+          </div>
+
+          <!-- Steps -->
+          <div class="mb-3">
+            <label class="form-label">👟 Steps Today</label>
+            <input type="number" class="form-control" id="hb_steps" value="0" min="0" max="50000" placeholder="e.g. 8000" />
+          </div>
+
+          <!-- Mood -->
+          <div class="mb-3">
+            <label class="form-label">
+              😊 Mood Score — <span id="moodValue">5</span>/10
+              <span id="moodEmoji" class="ms-1">😊</span>
+            </label>
+            <input type="range" class="form-range" id="hb_mood" min="1" max="10" value="5" />
+          </div>
+
+          <!-- Workout done -->
+          <div class="mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input" id="hb_workout" style="width:20px;height:20px" />
+              <label class="form-label mb-0">💪 Workout completed today</label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="mb-3">
+            <label class="form-label">📝 Notes (optional)</label>
+            <textarea class="form-control" id="hb_notes" rows="2" placeholder="How are you feeling today?"></textarea>
+          </div>
+
+          <button class="btn-gradient w-100" id="saveHabitsBtn">
+            ✅ Save Today's Log
+          </button>
+        </div>
+      </div>
+
+      <!-- Right panel: goals + history -->
+      <div class="col-12 col-md-6 col-lg-7">
+        <!-- Daily goals snapshot -->
+        <div class="glass-card p-3 mb-3">
+          <h6 class="fw-600 mb-3">🎯 Daily Goals Progress</h6>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="glass-card p-2 text-center" style="background:rgba(59,130,246,0.06)">
+                <div style="font-size:1.5rem">💧</div>
+                <div class="fw-600">8 glasses</div>
+                <div class="fs-sm text-muted">Water goal</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="glass-card p-2 text-center" style="background:rgba(168,85,247,0.06)">
+                <div style="font-size:1.5rem">😴</div>
+                <div class="fw-600">7-9 hours</div>
+                <div class="fs-sm text-muted">Sleep goal</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="glass-card p-2 text-center" style="background:rgba(34,197,94,0.06)">
+                <div style="font-size:1.5rem">👟</div>
+                <div class="fw-600">10,000</div>
+                <div class="fs-sm text-muted">Steps goal</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="glass-card p-2 text-center" style="background:rgba(249,115,22,0.06)">
+                <div style="font-size:1.5rem">💪</div>
+                <div class="fw-600">Daily</div>
+                <div class="fs-sm text-muted">Workout goal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Habit history -->
+        <div class="glass-card p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-600 mb-0">📆 Recent History</h6>
+            <span class="pill pill-green fs-sm">Last 14 days</span>
+          </div>
+          <div id="habitHistory">
+            <p class="text-muted fs-sm">No logs yet. Start tracking today!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE: PROFILE
+       ============================================================ -->
+  <section class="page-section" id="page-profile">
+    <div class="mb-4">
+      <h2 class="section-heading">👤 Your Profile</h2>
+      <p class="section-subheading">Complete your profile for hyper-personalised AI coaching</p>
+    </div>
+
+    <div class="row g-3">
+      <!-- Profile form -->
+      <div class="col-12 col-lg-7">
+        <div class="glass-card p-4">
+          <h6 class="fw-600 mb-3">🧑 Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="pf_name" placeholder="Your name" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-control" id="pf_age" min="10" max="100" value="25" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Gender</label>
+              <select class="form-select" id="pf_gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" class="form-control" id="pf_height_cm" min="100" max="250" value="170" />
+            </div>
+            <div class="col-6">
+              <label class="form-label">Weight (kg)</label>
+              <input type="number" class="form-control" id="pf_weight_kg" min="30" max="300" value="70" />
+            </div>
+          </div>
+
+          <hr class="divider" />
+          <h6 class="fw-600 mb-3">🎯 Fitness Goals</h6>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fitness Level</label>
+              <select class="form-select" id="pf_fitness_level">
+                <option value="beginner">🌱 Beginner</option>
+                <option value="intermediate">🔥 Intermediate</option>
+                <option value="advanced">⚡ Advanced</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Primary Goal</label>
+              <select class="form-select" id="pf_fitness_goal">
+                <option value="general_fitness">🎯 General Fitness</option>
+                <option value="weight_loss">⚖️ Weight Loss</option>
+                <option value="muscle_gain">💪 Muscle Gain</option>
+                <option value="endurance">🏃 Endurance</option>
+                <option value="flexibility">🤸 Flexibility</option>
+                <option value="stress_relief">🧘 Stress Relief</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Diet Preference</label>
+              <select class="form-select" id="pf_diet_preference">
+                <option value="vegetarian">🌱 Vegetarian</option>
+                <option value="vegan">🌿 Vegan</option>
+                <option value="non_vegetarian">🍗 Non-Vegetarian</option>
+                <option value="eggetarian">🥚 Eggetarian</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Days per Week</label>
+              <select class="form-select" id="pf_available_days_per_week">
+                <option value="2">2 days</option>
+                <option value="3" selected>3 days</option>
+                <option value="4">4 days</option>
+                <option value="5">5 days</option>
+                <option value="6">6 days</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Session Duration (minutes)</label>
+              <select class="form-select" id="pf_available_minutes_per_session">
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="30" selected>30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Medical Conditions / Injuries (optional)</label>
+              <textarea class="form-control" id="pf_medical_conditions" rows="2"
+                placeholder="e.g. lower back pain, knee injury, asthma..."></textarea>
+            </div>
+          </div>
+
+          <button class="btn-gradient mt-3 w-100" id="saveProfileBtn">
+            💾 Save Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile sidebar: BMI, stats -->
+      <div class="col-12 col-lg-5">
+        <div class="sidebar d-flex flex-column gap-3">
+          <!-- BMI Summary -->
+          <div class="glass-card p-3 text-center">
+            <div class="stat-icon icon-purple mx-auto mb-2">⚖️</div>
+            <div class="stat-value mb-1" id="profileBMI">--</div>
+            <div class="stat-label" id="profileTDEE">Save profile to calculate</div>
+          </div>
+
+          <!-- Why complete profile -->
+          <div class="glass-card p-3">
+            <h6 class="fw-600 mb-2">✨ Why complete your profile?</h6>
+            <ul class="ps-3 mb-0 fs-sm" style="color:var(--text-secondary)">
+              <li class="mb-2">AI chat responses are personalised to your goals</li>
+              <li class="mb-2">Workout plans match your fitness level</li>
+              <li class="mb-2">Nutrition calculations use your actual stats</li>
+              <li class="mb-2">Medical conditions are factored into advice</li>
+              <li>Progress tracking becomes meaningful</li>
+            </ul>
+          </div>
+
+          <!-- Medical disclaimer -->
+          <div class="glass-card p-3" style="border-left:3px solid #f97316">
+            <div class="fs-sm" style="color:var(--text-secondary)">
+              ⚠️ <strong>Medical Disclaimer:</strong> The information and workout plans provided
+              are for general wellness and educational purposes only. Always consult a qualified
+              healthcare professional before starting any new exercise or nutrition programme,
+              especially if you have pre-existing medical conditions.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================================================
+     TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmqpV+A3F0i5JGkV+7UfLrvU7q6S"
+  crossorigin="anonymous"
+></script>
+
+<script src="/static/app.js"></script>
+
+<!-- Inline init for habit range inputs -->
+<script>
+  // Sync range display labels
+  document.addEventListener("DOMContentLoaded", () => {
+    // Set today's date in habit page
+    const dateEl = document.getElementById("todayDate");
+    if (dateEl) {
+      const now = new Date();
+      dateEl.textContent = now.toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    }
+
+    // Water range label
+    document.getElementById("hb_water")?.addEventListener("input", (e) => {
+      const el = document.getElementById("waterVal");
+      if (el) el.textContent = e.target.value;
+    });
+
+    // Sleep range label
+    document.getElementById("hb_sleep")?.addEventListener("input", (e) => {
+      const el = document.getElementById("sleepVal");
+      if (el) el.textContent = e.target.value + "h";
+    });
+
+    // Update greeting with profile name
+    setTimeout(() => {
+      if (window.State?.userProfile?.name) {
+        const el = document.getElementById("greetName");
+        if (el) el.textContent = State.userProfile.name.split(" ")[0];
+      }
+    }, 800);
+  });
+</script>
+
+</body>
+</html>

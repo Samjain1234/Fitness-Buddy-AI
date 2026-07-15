@@ -1,0 +1,4 @@
+"""
+app/static — static assets directory.
+CSS, JS, and fonts are served from here.
+"""
